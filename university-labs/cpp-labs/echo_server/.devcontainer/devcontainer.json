@@ -1,0 +1,31 @@
+{
+  "name": "mephi ds devcontainer nuclear student",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "REMOTE_USER": "${localEnv:USER}",
+      "REMOTE_UID": "${localEnv:REMOTE_UID:1000}",
+      "REMOTE_GID": "${localEnv:REMOTE_GID:1000}"
+    }
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "llvm-vs-code-extensions.vscode-clangd",
+        "ms-vscode.cpptools"
+      ],
+      "settings": {
+        "clangd.path": "/usr/bin/clangd",
+        "clangd.arguments": [
+          "--compile-commands-dir=build/",
+          "--resource-dir=/lib/clang/16"
+        ],
+        "C_Cpp.intelliSenseEngine": "disabled"
+      }
+    }
+  },
+  "postCreateCommand": "/bin/bash -c 'for cmake in $(find . -name 'CMakeLists.txt'); do\n    build_dir=\"$(dirname \"$cmake\")/build\";\n    mkdir -p \"$build_dir\";\n    pushd \"$build_dir\";\n    cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=1;\n    popd;\ndone\n\nmkdir -p ./build;\njq -s 'add' $(find . -name 'compile_commands.json') > ./build/compile_commands.json'",
+  "remoteUser": "${localEnv:USER}"
+}
